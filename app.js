@@ -3,7 +3,15 @@ const $=(s,r=document)=>r.querySelector(s),$$=(s,r=document)=>[...r.querySelecto
 // sticky bar shadow
 const top=$('.top');const onS=()=>top&&top.classList.toggle('scrolled',scrollY>8);addEventListener('scroll',onS,{passive:true});onS();
 // image fade-in (blur-up placeholder is the button background)
-$$('.ph img').forEach(im=>{const ok=()=>im.classList.add('ld');if(im.complete&&im.naturalWidth)ok();else im.addEventListener('load',ok,{once:true})});
+// one big photo per flat; thumbnails swap it
+function setMain(v,b){const m=v.querySelector('.main'),im=m.querySelector('img'),th=[...v.querySelectorAll('.thumbs .ph')],k=th.indexOf(b),plan=b.dataset.plan==='1';
+ th.forEach(x=>x.setAttribute('aria-pressed',String(x===b)));m.dataset.i=k;
+ m.querySelector('.count').textContent=(k+1)+' / '+th.length;m.querySelector('.badge').hidden=!plan;m.classList.toggle('plan',plan);
+ const alt=b.getAttribute('aria-label').replace(/^Zobrazit: /,'');m.setAttribute('aria-label','Otevřít na celou obrazovku: '+alt);
+ const pre=new Image();pre.src=b.dataset.m;im.classList.add('swap');
+ const go=()=>{im.removeAttribute('srcset');im.src=b.dataset.m;im.srcset=b.dataset.s+' 440w, '+b.dataset.m+' '+b.dataset.mw+'w, '+b.dataset.full+' '+b.dataset.fw+'w';im.alt=alt;m.style.backgroundImage='none';requestAnimationFrame(()=>im.classList.remove('swap'))};
+ if(pre.complete)go();else{pre.onload=go;pre.onerror=go}
+ b.scrollIntoView({block:'nearest',inline:'nearest',behavior:'smooth'})}
 // active chip while scrolling
 const chips=$$('.chips-nav a[href^="#"]');
 if(chips.length&&'IntersectionObserver'in window){const map=new Map(chips.map(a=>[a.getAttribute('href').slice(1),a]));
@@ -15,23 +23,23 @@ const lb=$('#lb');if(!lb)return;
 const img=$('.lb-img',lb),nm=$('.lb-name',lb),meta=$('.lb-meta',lb),dots=$('.lb-dots',lb),stage=$('.lb-stage',lb),track=$('.lb-track',lb);
 let list=[],i=0,flat='',opener=null,cache={},token=0;
 function pre(k){const b=list[k];if(!b)return;const u=b.dataset.full;if(!cache[u]){const p=new Image();p.decoding='async';p.src=u;cache[u]=p}}
-function show(dir){const b=list[i],plan=b.closest('li').classList.contains('plan'),u=b.dataset.full,my=++token;
+function show(dir){const b=list[i],plan=b.dataset.plan==='1',u=b.dataset.full,my=++token;
  lb.classList.toggle('plan',plan);
  meta.textContent=(i+1)+' / '+list.length+(plan?' · půdorys':'');
  dots.innerHTML=list.length<=40?list.map((_,k)=>'<i class="'+(k===i?'on':'')+'"></i>').join(''):'';
- img.alt=b.querySelector('img').alt;
+ img.alt=b.getAttribute('aria-label').replace(/^Zobrazit: /,'');
  pre(i);const p=cache[u];const swap=()=>{if(my!==token)return;img.src=u;img.style.transform='';img.classList.remove('out');lb.classList.remove('loading')};
  img.classList.add('out');if(dir)img.style.transform='translateX('+(dir*-24)+'px)';
  const go=()=>setTimeout(swap,dir===0?0:120);
  if(p.complete&&p.naturalWidth)go();else{lb.classList.add('loading');p.addEventListener('load',go,{once:true});p.addEventListener('error',go,{once:true})}
  pre(i+1);pre(i-1);pre(i+2)}
-function open(b){list=$$('.ph',b.closest('.grid'));i=list.indexOf(b);flat=b.closest('.flat').dataset.name;opener=b;nm.textContent=flat;
+function open(m){const v=m.closest('.viewer');list=$$('.thumbs .ph',v);i=+(m.dataset.i||0);const b=m;flat=b.closest('.flat').dataset.name;opener=b;nm.textContent=flat;
  img.removeAttribute('src');lb.classList.add('open');lb.setAttribute('aria-hidden','false');document.documentElement.style.overflow='hidden';
  show(0);$('.lb-close',lb).focus({preventScroll:true});history.pushState({lb:1},'')}
-function close(fromPop){if(!lb.classList.contains('open'))return;lb.classList.remove('open');lb.setAttribute('aria-hidden','true');document.documentElement.style.overflow='';
+function close(fromPop){if(!lb.classList.contains('open'))return;lb.classList.remove('open');lb.setAttribute('aria-hidden','true');document.documentElement.style.overflow='';const v=opener&&opener.closest('.viewer');if(v&&list[i])setMain(v,list[i]);
  if(opener)opener.focus({preventScroll:true});if(!fromPop&&history.state&&history.state.lb)history.back()}
 function step(d){if(list.length<2)return;i=(i+d+list.length)%list.length;show(d)}
-document.addEventListener('click',e=>{const b=e.target.closest('.ph');if(b){e.preventDefault();open(b)}});
+document.addEventListener('click',e=>{const t=e.target.closest('.thumbs .ph');if(t){e.preventDefault();setMain(t.closest('.viewer'),t);return}const m=e.target.closest('.main');if(m){e.preventDefault();open(m)}});
 $('.lb-close',lb).addEventListener('click',()=>close());
 $('.lb-prev',lb).addEventListener('click',e=>{e.stopPropagation();step(-1)});
 $('.lb-next',lb).addEventListener('click',e=>{e.stopPropagation();step(1)});
