@@ -1,10 +1,13 @@
-(()=>{const lb=document.getElementById('lb'),img=lb.querySelector('img'),cap=lb.querySelector('figcaption');let s=0,i=0;
-function show(){const p=G[s][i];img.src=p.f;lb.classList.toggle('plan',p.p);cap.textContent=(p.p?'Půdorys · ':'')+(i+1)+' / '+G[s].length;
- [i-1,i+1].forEach(k=>{if(G[s][k]){const im=new Image();im.src=G[s][k].f}})}
-function open(a,b){s=a;i=b;lb.hidden=false;document.body.style.overflow='hidden';show();history.pushState({lb:1},'')}
-function close(){if(lb.hidden)return;lb.hidden=true;document.body.style.overflow='';img.src=''}
-function go(d){i=(i+d+G[s].length)%G[s].length;show()}
-document.querySelectorAll('.ph').forEach(b=>b.addEventListener('click',()=>open(+b.dataset.s,+b.dataset.i)));
+(()=>{const lb=document.getElementById('lb'),img=lb.querySelector('img'),cap=lb.querySelector('figcaption');
+// Lightbox order = exact grid order of the clicked flat (read from the DOM, not a separate index)
+let list=[],i=0;
+function show(){const b=list[i],plan=b.classList.contains('plan');img.src=b.dataset.full;lb.classList.toggle('plan',plan);
+ cap.textContent=(plan?'Půdorys · ':'')+(i+1)+' / '+list.length;
+ [i-1,i+1].forEach(k=>{if(list[k]){const im=new Image();im.src=list[k].dataset.full}})}
+function open(b){list=[...b.closest('.grid').querySelectorAll('.ph')];i=list.indexOf(b);lb.hidden=false;document.body.style.overflow='hidden';show();history.pushState({lb:1},'')}
+function close(){if(lb.hidden)return;lb.hidden=true;document.body.style.overflow='';img.removeAttribute('src')}
+function go(d){i=(i+d+list.length)%list.length;show()}
+document.querySelectorAll('.ph').forEach(b=>b.addEventListener('click',()=>open(b)));
 lb.querySelector('.x').onclick=()=>history.back();lb.querySelector('.pv').onclick=e=>{e.stopPropagation();go(-1)};lb.querySelector('.nx').onclick=e=>{e.stopPropagation();go(1)};
 lb.addEventListener('click',e=>{if(e.target===lb)history.back()});
 addEventListener('popstate',close);
