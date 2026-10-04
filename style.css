@@ -181,3 +181,16 @@ tr.hide{display:none}
   td[data-l]::before{content:attr(data-l);display:block;font-size:11px;font-weight:600;letter-spacing:.07em;text-transform:uppercase;color:var(--muted);margin-bottom:3px}
   td.name::before{display:none}
 }
+.vh{position:absolute!important;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+/* table v2: wider page, sane column widths */
+.wide-wrap{max-width:1340px}
+.price-b{white-space:nowrap}
+small.druh{font-style:italic}
+@media (min-width:900px){
+  table{table-layout:fixed;font-size:14px}
+  th,td{padding:16px 14px}
+  thead th:nth-child(1){width:23%}thead th:nth-child(2){width:9.5%}thead th:nth-child(3){width:8%}thead th:nth-child(4){width:8.5%}
+  thead th:nth-child(5){width:9%}thead th:nth-child(6){width:21%}thead th:nth-child(7){width:10%}thead th:nth-child(8){width:11%}
+  td.pm,td.dt{font-size:13.5px;color:var(--ink-2)}
+  td.pm{font-variant-numeric:tabular-nums}
+}
