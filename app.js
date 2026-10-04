@@ -1,5 +1,7 @@
 (()=>{'use strict';
 const $=(s,r=document)=>r.querySelector(s),$$=(s,r=document)=>[...r.querySelectorAll(s)];
+// Scroll only the horizontal strip that contains el (never the page). Element.scrollIntoView() in Safari also scrolled the document, yanking the page back while the user scrolled.
+function hscroll(el){const c=el.closest('.chips-nav,.thumbs');if(!c)return;const l=el.offsetLeft-c.offsetLeft,r=l+el.offsetWidth;if(l<c.scrollLeft+8||r>c.scrollLeft+c.clientWidth-8)c.scrollTo({left:Math.max(0,l-(c.clientWidth-el.offsetWidth)/2),behavior:'smooth'})}
 // sticky bar shadow
 const top=$('.top');const onS=()=>top&&top.classList.toggle('scrolled',scrollY>8);addEventListener('scroll',onS,{passive:true});onS();
 // image fade-in (blur-up placeholder is the button background)
@@ -11,11 +13,11 @@ function setMain(v,b){const m=v.querySelector('.main'),im=m.querySelector('img')
  const pre=new Image();pre.src=b.dataset.m;im.classList.add('swap');
  const go=()=>{im.removeAttribute('srcset');im.src=b.dataset.m;im.srcset=b.dataset.s+' 440w, '+b.dataset.m+' '+b.dataset.mw+'w, '+b.dataset.full+' '+b.dataset.fw+'w';im.alt=alt;m.style.backgroundImage='none';requestAnimationFrame(()=>im.classList.remove('swap'))};
  if(pre.complete)go();else{pre.onload=go;pre.onerror=go}
- b.scrollIntoView({block:'nearest',inline:'nearest',behavior:'smooth'})}
+ hscroll(b)}
 // active chip while scrolling
 const chips=$$('.chips-nav a[href^="#"]');
 if(chips.length&&'IntersectionObserver'in window){const map=new Map(chips.map(a=>[a.getAttribute('href').slice(1),a]));
- const io=new IntersectionObserver(es=>{es.forEach(e=>{if(e.isIntersecting){chips.forEach(c=>c.classList.remove('on'));const a=map.get(e.target.id);if(a){a.classList.add('on');a.scrollIntoView({block:'nearest',inline:'nearest'})}}})},{rootMargin:'-45% 0px -50% 0px'});
+ const io=new IntersectionObserver(es=>{es.forEach(e=>{if(e.isIntersecting){chips.forEach(c=>c.classList.remove('on'));const a=map.get(e.target.id);if(a){a.classList.add('on');hscroll(a)}}})},{rootMargin:'-45% 0px -50% 0px'});
  $$('.flat').forEach(s=>io.observe(s))}
 
 // ---------- lightbox ----------
