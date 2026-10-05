@@ -201,6 +201,9 @@ td.name a{display:inline-flex;align-items:center;gap:9px;font:600 16px/1.25 var(
 td.name a:hover{text-decoration:underline;text-underline-offset:3px}
 td.name .dot{flex:none;width:12px;height:12px;border-radius:50%;background:var(--c)}
 td.name small{display:block;color:var(--muted);font:400 12.5px/1.4 var(--sans);margin:3px 0 0 21px}
+.typ-tag{display:inline-block;margin:4px 0 0 21px;font:600 11px/1 var(--display);padding:4px 8px;border-radius:999px;border:1.5px solid var(--ink);letter-spacing:.02em}
+.typ-tag.najem{background:#a0e7d0}
+.typ-tag.prodej{background:#ffd166}
 .num-c{font-variant-numeric:tabular-nums;text-align:right}
 th.num-c{text-align:right}
 .tnote{color:var(--muted);font-size:14px;line-height:1.7;margin:16px 4px 0;max-width:80ch}
